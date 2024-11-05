@@ -1,0 +1,58 @@
+[gd_scene load_steps=9 format=3 uid="uid://76mjwbs1vujn"]
+
+[ext_resource type="Script" path="res://Bomb_Trap.gd" id="1_h1ig2"]
+[ext_resource type="Texture2D" uid="uid://bumga2pjko0d4" path="res://Bomb.png" id="2_5udp3"]
+[ext_resource type="Texture2D" uid="uid://b5r6jm44sqiik" path="res://explosion_1.png" id="3_n6np1"]
+[ext_resource type="Texture2D" uid="uid://dew7i1t0hkfjp" path="res://explosion_3.png" id="4_ct353"]
+[ext_resource type="Texture2D" uid="uid://dvwupvwu1sjw0" path="res://explosion_2.png" id="5_klfqu"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_io6d7"]
+atlas = ExtResource("2_5udp3")
+region = Rect2(0, 0, 816, 966)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_y6ihr"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_io6d7")
+}],
+"loop": true,
+"name": &"Bomb",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_n6np1")
+}, {
+"duration": 1.5,
+"texture": ExtResource("5_klfqu")
+}, {
+"duration": 1.5,
+"texture": ExtResource("4_ct353")
+}],
+"loop": true,
+"name": &"Explosion",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_p1qru"]
+radius = 7.0
+
+[node name="Bomb_Trap" type="Area2D" groups=["Bombs"]]
+z_index = 1
+script = ExtResource("1_h1ig2")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 3
+scale = Vector2(0.02, 0.02)
+sprite_frames = SubResource("SpriteFrames_y6ihr")
+animation = &"Explosion"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-2, 3)
+shape = SubResource("CircleShape2D_p1qru")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]

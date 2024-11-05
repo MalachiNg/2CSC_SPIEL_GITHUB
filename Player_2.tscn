@@ -1,0 +1,923 @@
+[gd_scene load_steps=39 format=3 uid="uid://u3kaare3kvmn"]
+
+[ext_resource type="Texture2D" uid="uid://cul601x4ac6a5" path="res://Food_100%.png" id="2_twwmy"]
+[ext_resource type="Texture2D" uid="uid://v267sm7w2kav" path="res://sprite_2.webp" id="2_xkiwi"]
+[ext_resource type="Texture2D" uid="uid://6wwa48cueufk" path="res://Food_20%.png" id="3_r15e5"]
+[ext_resource type="Texture2D" uid="uid://d4e4ck3x4vsho" path="res://Food_40%.png" id="4_cnpdn"]
+[ext_resource type="Texture2D" uid="uid://dyy4hfv4ixlrv" path="res://Food_60%.png" id="5_o2rhu"]
+[ext_resource type="Texture2D" uid="uid://bw3gp2ob8ft1y" path="res://Food_80%.png" id="6_55aps"]
+[ext_resource type="Texture2D" uid="uid://chn1hesxmptt6" path="res://Food_CRITICAL!.png" id="7_4n7ct"]
+[ext_resource type="Texture2D" uid="uid://inrpqikdofed" path="res://1_Heart.png" id="9_bqkfj"]
+[ext_resource type="Texture2D" uid="uid://ssmmvbh8con1" path="res://2_Hearts.png" id="10_68afl"]
+[ext_resource type="Texture2D" uid="uid://d1cwfojrs0tw8" path="res://white_circle.png" id="11_01ilh"]
+[ext_resource type="Texture2D" uid="uid://8b1026u6hws4" path="res://3_Hearts.png" id="11_ihlyc"]
+[ext_resource type="AudioStream" uid="uid://c6eiqjqe6183m" path="res://Panting_sound_effect.mp3" id="12_pegyh"]
+[ext_resource type="AudioStream" uid="uid://cmhymp4dfrfcv" path="res://dying_sound.mp3" id="13_d82q5"]
+[ext_resource type="AudioStream" uid="uid://bt0ypjvetu608" path="res://health_decreased_sound_effect.mp3" id="14_1yuv5"]
+[ext_resource type="Texture2D" uid="uid://cgr8pxnle8sma" path="res://shield.png" id="15_snto7"]
+[ext_resource type="Texture2D" uid="uid://s0vbu4hxa2qd" path="res://show_fuel_left_texture.png" id="16_yw5vd"]
+
+[sub_resource type="GDScript" id="GDScript_v763d"]
+resource_name = "Player_2.gd"
+script/source = "extends Area2D # using a 2D environment. 
+@onready var speed: float = 120 # exports \"speed\" as a variable, which can be edited in inspector. 
+@onready var food_bars: int = 5
+@onready var direction: Vector2 = Vector2.DOWN # as the player is constantly moving in this game.
+@onready var health: int = 3
+@onready var fuel: int = 0
+@onready var is_gaining_health = false
+@onready var is_losing_health = false
+@onready var is_losing_hunger = false
+@onready var touching_mob = false
+@onready var min_x = 0 # the minimum x co-ordinate the player can be in as long as they stay in the map.
+@onready var max_x = 1152 # the maximum x co-ord
+@onready var min_y = 0 # min y co-ord
+@onready var max_y = 648 # max y co-ord.
+@onready var daytime_process = false
+@onready var game_over_run = false
+@onready var showing_fuel_bar = 0
+@onready var touched_food = false
+@onready var food_wait_time : float
+@onready var food_timer_num : int
+@onready var play_sound_called = false
+const Food_100 = preload(\"res://100%_food_texture.png\")
+const Food_80 = preload(\"res://80%_food_texture.png\") # this one is the same size (pretty much) as 60, 40 and 20. 
+const Food_CRITICAL = preload(\"res://Food_CRITICAL!.png\")
+@onready var display_multiplayer_called = false
+const Hearts_3 = preload(\"res://3_Hearts.png\") 
+const Hearts_2 = preload(\"res://2_Hearts.png\") 
+const Hearts_1 = preload(\"res://1_Heart.png\")
+@onready var unmute = Global.Unmute 
+@onready var died_from_starvation = false # the below three tell the script what the player died of.
+@onready var died_from_mobs = false
+@onready var died_from_traps = false 
+@onready var shield_equipped = false # lets the script know if the player has a shield on.
+@onready var player_immune_to_mob_damage = false # the purpose of this is to ensure that mob clusters are less dangerous, 
+# and that the shape of mobs collisionshapes doesn't cause 1 hit to be 2. 
+@onready var player_respawning = false # lets the cutscene code know if the player is in teh 3 second process of respawning. 
+@onready var player_respawning_second : int # lets the script know if the player is in the process of respawning.
+var path_follow: PathFollow2D
+const shield_rotation_speed = 0.6
+var shields_picked_up = 0
+
+# this fetches the value of unmute, because it can't change when player is active, 
+# so theres no point fetching it every time process wants to run panting.
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	$AnimatedSprite2D.play(\"move_down\")
+	# this line of code makes the AnimatedSprite2D node play the move_down animation to match the velocity. 
+	Signals.connect(\"game_paused_true\", game_paused_true)
+	Signals.connect(\"game_paused_false\", game_paused_false)
+	# this method of connecting does the same as in player, but is differently formatted. 
+	# i guess it shows i know different ways to code this?
+	Global.player_position = global_position # this is added, 
+	# as it is required to run before process, so that mobs spawning can function properly on the first night.
+	$Path2D/PathFollow2D/Shield_Sprite2D.hide()
+	path_follow = $Path2D/PathFollow2D
+	$Health_Bar_PointLight2D.global_position = Vector2(-30, -20)
+	$Food_Bars_PointLight2D.global_position = Vector2(-30, -65)
+	$Food_bar_AnimatedSprite2D.global_position = Vector2(-30,-65)
+	$Health_bar_AnimatedSprite2D.global_position = Vector2(-30, -20)
+	$Respawning_PointLight2D.hide()
+	$Respawning_Label.hide()
+	$Respawning_Sprite2D.hide()
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	if not Global.game_over and unmute:
+		play_panting_sound()
+	if not game_over_run: 
+		# to save processing power and increase performance of the game, once the player has died, 
+		# as no code is needed from it after it's death, 
+		# due to monitoring of multiplayer game over being done in player 1's script regardless of the order of death, 
+		# process will only run if player 2 is alive.
+		handle_input() #corresponds to a later function, 
+		# doesn't matter the order of which functions are called, as the computer reads everything before executing it. 
+		move_and_animate(delta) # again, corresponds to a later function.
+		display_food()
+		display_shield(delta)
+		fuel = Global.global_fuel # ensures that the fuel is always up to date with the corresponding global fuel variable. 
+		Global.update_player_2_position(global_position)
+		animate_time_of_day()
+		decrease_food()
+		gain_health() 
+		critical_food()
+		$Food_bar_AnimatedSprite2D.global_position = Vector2(1185,-65)
+		$Health_bar_AnimatedSprite2D.global_position = Vector2(1185, -20)
+		if (Global.day_and_night % 2) == 0:
+			display_food_and_health_multiplayer()
+		else:
+			$Food_Bars_PointLight2D.hide() 
+			$Health_Bar_PointLight2D.hide()
+		display_health() # put at the end, so that hiding nodes from death won't show later on in the same run of process.  
+
+
+func handle_input():
+	var input_direction = Vector2.ZERO
+	
+	if Input.is_action_pressed(\"move_up_2\"): 
+		# if the input action \"move_up\" as set in project settings, 
+		# and is activated by w or the up key, then:
+		input_direction.y -= 1 # change the \"y\" direction by -1, setting the direction as moving up. 
+	if Input.is_action_pressed(\"move_down_2\"): #same as the last one, but for input action \"move_down\". 
+		input_direction.y += 1 # change the \"y\" direction by +1 setting the direction to moving down. 
+	if Input.is_action_pressed(\"move_left_2\"): # Ok I think it's clear by now...
+		input_direction.x -= 1 # change the \"x\" direction by -1, setting the direction to left. 
+	if Input.is_action_pressed(\"move_right_2\"): 
+		# last one! my fingers are getting sore! yep its definitely obvious by now, I don't need to add this surely...
+		input_direction.x += 1 # and finally, change the \"x\" direction by +1, making  the direction right! :D
+		
+	# But wait! There's more!!!
+	if input_direction != Vector2.ZERO: # if no input is detected...
+		direction = input_direction.normalized() # ... keep the sprite moving in the same direction! :D
+	
+
+
+func move_and_animate(delta): # the function that codes the animations. 
+	position += direction * speed * delta 
+	# the position of the sprite is equal to: The pre-existing position multiplied by the direction, 
+	# so it moves the right way, the speed, so it moves the right amount, and delta, 
+	# so that the speed moves in accordance to the time between frames, 
+	# as opposed to the set speed at the start of the code.     
+	position.x = clamp(position.x, min_x, max_x)
+	position.y = clamp(position.y, min_y, max_y) 
+	if direction.x > 0: 
+		# if the x direction variable is larger than 0, 
+		# indicating that the character should move along the x axis, towards the right, then:
+		if direction.y > 0: 
+			# check if y is greater than 0, which, as in many game programming platforms, 
+			# (0,0) is the top left of the screen, so that the y-axis is reversed, 
+			# means that the character will be moving right. As this is within the right section of the code, 
+			# this means the sprite will move down right.
+			$AnimatedSprite2D.play(\"move_down_right\") # as said before, down right.
+		elif direction.y < 0: # check to see if player is moving left. (already explained twice)
+			$AnimatedSprite2D.play(\"move_up_right\") # move it down left. (wow)
+		else: 
+			# the only other alternative is if only D is being pressed, so the character is moving only right, 
+			# so only play the right animation.
+			$AnimatedSprite2D.play(\"move_right\") # so yeah move right.
+	elif direction.x < 0: # if x is less than 0 however, you should be moving left.
+		if direction.y > 0: 
+			# as mentioned, given the top left of the screen is (0,0), 
+			# then y being greater than 0 means that the character is moving down. 
+			# And because this is within the left section, down left.
+			$AnimatedSprite2D.play(\"move_down_left\") # huzzah! move down left!
+		elif direction.y < 0: # y is less than zero so moving up, and then left bc of the position.
+			$AnimatedSprite2D.play(\"move_up_left\") # Huzzah again! move up left!
+		else: # the only other alternative is that only left is being pressed, so therefore...
+			$AnimatedSprite2D.play(\"move_left\") # move only left.
+	else: # and finally! there are just 2 animation directions unaccounted for!!!
+		if direction.y > 0: # only moving down... 
+			$AnimatedSprite2D.play(\"move_down\") # moving down!!! YAA!!!! :D
+		elif direction.y < 0: # and only moving up!!!
+			$AnimatedSprite2D.play(\"move_up\") # UP!!!!
+
+		
+func display_food():
+	if food_bars > 5:
+		food_bars = 5
+	elif food_bars == 5: 
+		# the variable can be between 5 and 0, each meaning food is one of 5 levels, 20% apart, respectively.
+		$Food_bar_AnimatedSprite2D.play(\"100%\")
+	elif food_bars == 4:
+		$Food_bar_AnimatedSprite2D.play(\"80%\")
+	elif food_bars == 3:
+		$Food_bar_AnimatedSprite2D.play(\"60%\")
+	elif food_bars == 2:
+		$Food_bar_AnimatedSprite2D.play(\"40%\")
+	elif food_bars == 1:
+		$Food_bar_AnimatedSprite2D.play(\"20%\")
+	elif food_bars == 0:
+		$Food_bar_AnimatedSprite2D.play(\"CRITICAL!\")
+	elif food_bars < 0:
+		food_bars = 0
+	else:
+		pass
+		
+
+func critical_food():
+	if food_bars == 0:
+		#$Food_bar_AnimatedSprite2D.play(\"CRITICAL!\") # this one means 0%, player starts losing health. 
+		# removed as it happens later, but not called constantly, to optimise the code. 
+		if is_losing_health:
+			return
+		else:
+			is_losing_health = true
+			$Food_bar_AnimatedSprite2D.play(\"CRITICAL!\") # this one means 0%, player starts losing health.
+			# im going to create a timer node and use that to decrease the health, 
+			# with it decreasing for every few seconds with critical food. 
+			if Global.Normal_mode:
+				await get_tree().create_timer(7.0).timeout 
+				# waits 7 seconds to decrease health at critical hunger.
+			else:
+				await get_tree().create_timer(4.0).timeout 
+				# in hard mode, health decreases at critical hunger, faster. 
+			if unmute:
+				$Health_Decreased_AudioStreamPlayer.play()
+			# now im going to create a health variable which will be local, 
+			# and decrease once the 7 second timer ends, so that the health slowly decreases when food is critical.
+			if food_bars == 0:
+				health -= 1 # decrease health by 1 every 7 seconds .
+				if health == 0 or health < 0:
+					Global.update_player_2_died_from(1)
+				is_losing_health = false
+			else:
+				is_losing_health = false
+
+			
+			
+func decrease_food(): # MAYBE CHANGE THIS TO CORRESPOND TO THE DAY AND NIGHT INCREASING DIFFICULTY OVER TIME FOR \"LEVELS\"
+	if not touched_food: 
+		# There is a timer that starts right after a food is touched, 
+		# which then reduces the food_bars, if its already timing, this should be skipped. 
+		if is_losing_hunger: # This avoids multiple runs of the code.
+			return
+		else:
+			is_losing_hunger = true
+			if Global.Normal_mode:
+				# below, because speed of everything has decreased by 40% its only fair to make the food wiat time longer, 
+				# because it takes longer to get fuel. therefore, wait time has increased by 40% from 25 to 35.
+				food_wait_time = (35*(1-(Global.day_and_night * 0.05))) 
+				# ok so pretty much we multiply the Global.day_and_night variable by 0.05, 
+				# and subtract this from 1, and multiply the resulting number by the original number of seconds, 25. 
+				# so on the first night, this is the equation:
+				# 0 * 0.05 = 0, 1 - 0 = 1, 25 * 1 = 25, therefore food_wait_time = 25 seconds. 
+				# but on another random time, such as on the 5th day, when day_and_night = 9, 
+				# 9 * 0.05 = 0.45, 1 - 0.45 = 0.55, 25 * 0.55 = 13.75, therefore the wait time would be 13.75 seconds. 
+				# this section helps the game increase steadily in difficulty, 
+				# providing an steadily increasing challenge to help excercise the user's brains!
+			# this only occurs on the normal difficulty, however, and in hard mode this happens.
+			else:
+				food_wait_time = (21*(1-(Global.day_and_night * 0.1))) # same thing happened here, wait time increased by 40%.
+				# a far shorter, and more quickly decreasing time to reduce hunger. 
+			await get_tree().create_timer(food_wait_time).timeout
+			if not touched_food: 
+				# This ensures that during the timer, the player hasn't touched a food and started a new timer.
+				food_bars -= 1
+				is_losing_hunger = false
+			else:
+				is_losing_hunger = false
+	else:
+		return
+
+
+func display_health():
+	if health == 3:
+		$Health_bar_AnimatedSprite2D.play(\"3_Hearts\")
+	elif health == 2:
+		$Health_bar_AnimatedSprite2D.play(\"2_Hearts\")
+	elif health == 1:
+		$Health_bar_AnimatedSprite2D.play(\"1_Heart\")
+	elif health > 3:
+		health = 3
+		$Health_bar_AnimatedSprite2D.play(\"3_Hearts\")
+	else:
+		if game_over_run:
+			return
+		else:
+			if unmute:
+				$Dying_AudioStreamPlayer.play()
+			game_over_run = true
+			game_over()
+			count_down_respawn_process() # begin the process of respawning the player!
+
+func game_over():
+	$Health_bar_AnimatedSprite2D.hide()
+	$Food_bar_AnimatedSprite2D.hide()
+	$AnimatedSprite2D.hide()
+	$Respawning_Label.hide()
+	$Respawning_PointLight2D.hide()
+	$Respawning_Sprite2D.hide()
+	$PointLight2D.hide() # this shouldn't become visible again, 
+	# as animate time of day only runs when game_over_run is false, which it is not.
+	$Health_Bar_PointLight2D.hide() # same with these, not shown as game_over_run is true
+	$Food_Bars_PointLight2D.hide()
+	global_position = Vector2(-1, -1)
+	Global.update_player_2_position(global_position) # update globals player 2 pos with -1, -1, 
+	# letting mobs know to not chase player 2.
+	Global.update_multiplayer_game_over(Global.multiplayer_game_over+1) 
+
+func gain_health():
+	if is_gaining_health:
+		return
+	is_gaining_health = true
+	if Global.Normal_mode:
+		await get_tree().create_timer(30+(Global.day_and_night)).timeout 
+		# waits 30 seconds, plus 1 more second for he number of days and nights you've survived. 
+		# This means that health regens on the first night every 30 seconds, then slower as the game progresses, 
+		# increasing difficulty over time.
+	else:
+		await get_tree().create_timer(45+(Global.day_and_night)).timeout 
+		# if the user has selected hard mode, they regenerate health slower.
+	if health < 3 and health != 0 and food_bars != 0: 
+		# makes sure that food isn't critical, as food cannot regen at critical.
+		health += 1
+		is_gaining_health = false
+	else:
+		return
+
+func _on_body_entered(body):
+	if body.is_in_group(\"Mobs\"):
+		if not shield_equipped and not player_immune_to_mob_damage:
+			health -= 1
+			if health == 0 or health < 0:
+				Global.update_player_2_died_from(2)
+			if unmute:
+				$Health_Decreased_AudioStreamPlayer.play()
+			player_immune_to_mob_damage = true
+			await get_tree().create_timer(1).timeout
+			player_immune_to_mob_damage = false
+		else:
+			shield_equipped = false
+			$Path2D/PathFollow2D/Shield_Sprite2D.hide()
+			player_immune_to_mob_damage = true # player is immune to mob damage for 1 second, protecting against mob clusters.
+			await get_tree().create_timer(1).timeout
+			player_immune_to_mob_damage = false
+	elif body.is_in_group(\"Boss_mobs\"):
+		if not shield_equipped:
+			health -= 3
+		else:
+			shield_equipped = false
+			$Path2D/PathFollow2D/Shield_Sprite2D.hide()
+		Global.update_player_2_died_from(2)
+	elif body.is_in_group(\"Sleeper_Mobs\"):
+		if not shield_equipped:
+			health -= 1
+		else:
+			shield_equipped = false
+			$Path2D/PathFollow2D/Shield_Sprite2D.hide()
+		if health == 0 or health < 0:
+			Global.update_player_2_died_from(2)
+		if unmute:
+			$Health_Decreased_AudioStreamPlayer.play()
+
+func _on_area_entered(area):
+	if area.is_in_group(\"Foods\"):
+		food_bars += 1
+		# this sets the touched_food variable to true, preventing food to go down in the decrease_food() function.
+		touched_food = true
+		# This adds 1 to the food_timer_num variable.
+		food_timer_num += 1
+		# this sets a new variable to the value of the food_timer_num variable, preserving it's value.
+		var start_of_timer_num = food_timer_num
+		food_wait_time = (25*(1-(Global.day_and_night * 0.05)))
+		await get_tree().create_timer(food_wait_time).timeout
+		# then, in this if section of the code, it checks if the start_of_timer_num is the same as food_timer_num.
+		# if it is, that means the user has not increased the food_timer_num variable.
+		# Therefore, the user has not eaten any other food since the timer started. 
+		# that means that this section is allowed to decrease the food_bars.
+		if food_timer_num == start_of_timer_num:
+			# decease the food bars. 
+			food_bars -= 1
+			# the below allows the decrease_food() function to take over for decreasing hunger again.
+			touched_food = false
+		else:
+			return
+	elif area.is_in_group(\"Fuels\"):
+		Global.update_fuel(fuel+1)
+	elif area.is_in_group(\"Bombs\"):
+		if not shield_equipped:
+			health -= 2
+			if health == 0 or health < 0:
+				Global.update_player_2_died_from(3)
+			speed = 60
+			await get_tree().create_timer(2.0).timeout
+			speed = 120
+		else:
+			shield_equipped = false
+			$Path2D/PathFollow2D/Shield_Sprite2D.hide()
+	elif area.is_in_group(\"Shields\"):
+		$Path2D/PathFollow2D/Shield_Sprite2D.show()
+		shields_picked_up += 1
+		var current_shields = shields_picked_up
+		shield_equipped = true
+		await get_tree().create_timer(20).timeout
+		if current_shields == shields_picked_up:
+			# if the user hasn't picked up another shield during this 20 seconds:
+			shield_equipped = false
+			$Path2D/PathFollow2D/Shield_Sprite2D.hide()
+			$Path2D/PathFollow2D/Shield_Sprite2D.hide()
+
+
+func _on_game_over_back_button_pressed():
+	Global.update_game_over(false)
+	get_tree().change_scene_to_file(\"res://Start_scene.tscn\")
+
+
+func animate_time_of_day():
+	if (Global.day_and_night % 2) == 0:
+		$PointLight2D.show()
+	else:
+		$PointLight2D.hide()
+
+
+
+func play_panting_sound():
+	if play_sound_called:
+		return
+	else:
+		play_sound_called = true
+		if (Global.day_and_night % 2) == 0:
+			$Panting_AudioStreamPlayer.volume_db = -20
+		else:
+			$Panting_AudioStreamPlayer.volume_db = -40
+		$Panting_AudioStreamPlayer.play()
+		await $Panting_AudioStreamPlayer.finished
+		play_sound_called = false
+
+func display_food_and_health_multiplayer():
+	$Health_Bar_PointLight2D.global_position = Vector2(1185, -20)
+	$Food_Bars_PointLight2D.global_position = Vector2(1185,-65)
+	if display_multiplayer_called:
+		return
+	else:
+		display_multiplayer_called = true
+		if (Global.day_and_night % 2) != 0: # if it is day: (when the code shouldn't run)
+			await get_tree().create_timer(15.0).timeout 
+			# in order to optimise the code, by waiting until it is night again, 
+			# the code does not unnecessarily run during the day. 
+			display_multiplayer_called = false 
+			# but once back into night, this means that the code can continue to be used as normal. 
+		else:
+			$Health_Bar_PointLight2D.show() ; $Food_Bars_PointLight2D.show()
+			if health == 3:
+				$Health_Bar_PointLight2D.texture = Hearts_3
+			elif health == 2:
+				$Health_Bar_PointLight2D.texture = Hearts_2
+			elif health == 1:
+				$Health_Bar_PointLight2D.texture = Hearts_1
+			else:
+				$Health_Bar_PointLight2D.hide()
+			if food_bars == 5:
+				$Food_Bars_PointLight2D.texture = Food_100
+			elif food_bars == 4 or food_bars == 3 or food_bars == 2 or food_bars == 1:
+				$Food_Bars_PointLight2D.texture = Food_80
+			elif food_bars == 0:
+				$Food_Bars_PointLight2D.texture = Food_CRITICAL
+			else:
+				$Food_Bars_PointLight2D.hide()
+			display_multiplayer_called = false
+
+func game_paused_true():
+	if not game_over_run:
+		$AnimatedSprite2D.scale = Vector2(3, 3)
+		$AnimatedSprite2D.position = Vector2(0, -40)
+		$Food_bar_AnimatedSprite2D.hide()
+		$Health_bar_AnimatedSprite2D.hide()
+		$Health_Bar_PointLight2D.hide()
+		$Food_Bars_PointLight2D.hide()
+		$PointLight2D.show()
+	if player_respawning: # if the player is in the process of respawning 
+		# (a 3 second process, highly unlikley to ever happen, however there is a lot of code to sort out the issues if it ever did!)
+		$Respawning_Label.hide()
+		$Respawning_Sprite2D.hide()
+		if $Respawning_Label.text == \"Respawning in 3...\": 
+			player_respawning_second = 3
+		elif $Respawning_Label.text == \"Respawning in 2...\": 
+			player_respawning_second = 2
+		else: 
+			player_respawning_second = 1
+
+
+func game_paused_false():
+	if not game_over_run:
+		$AnimatedSprite2D.scale = Vector2(0.5, 0.5)
+		$AnimatedSprite2D.position = Vector2(0, 0)
+		$Food_bar_AnimatedSprite2D.show()
+		$Health_bar_AnimatedSprite2D.show()
+		$Health_Bar_PointLight2D.hide()
+		$Food_Bars_PointLight2D.show()
+		$PointLight2D.show()
+		display_food_and_health_multiplayer()
+	if player_respawning_second != 0: # this will only happen if the player is in the process of respawning in the cutscene.
+		# not using the player_respawning because that is changed back to false during the cutscene, should this be run then, meaning it can't be used.
+		# this entire block of code is very unlikely to be used much, however it prevents some major issues if respawning happened during the cutscene.
+		$Respawning_PointLight2D.show() # show the pointlight, so the label can be seen after the cutscene.
+		$Respawning_Label.show()
+		$Respawning_Sprite2D.show()
+		Global.update_multiplayer_game_over(1) # this will have changed during the cutscene, bring it back so they don't respawn.
+		game_over_run = true # this too.
+		if player_respawning_second == 1:
+			$Respawning_Label.text = \"Respawning in 1...\"
+			await get_tree().create_timer(1).timeout
+		elif player_respawning_second == 2:
+			$Respawning_Label.text = \"Respawning in 2...\"
+			await get_tree().create_timer(1).timeout
+			$Respawning_Label.text = \"Respawning in 1...\"
+			await get_tree().create_timer(1).timeout
+		else: # the only other case is == 3:
+			$Respawning_Label.text = \"Respawning in 3...\"
+			await get_tree().create_timer(1).timeout
+			$Respawning_Label.text = \"Respawning in 2...\"
+			await get_tree().create_timer(1).timeout
+			$Respawning_Label.text = \"Respawning in 1...\"
+			await get_tree().create_timer(1).timeout
+		respawn_player() # respawn the player after this.
+		player_respawning_second = 0 # this shows the next runs of the game_paused_false that this needn't be run.
+
+
+func display_shield(delta):
+	if shield_equipped:
+		# progress the shield around the player:
+		path_follow.progress += shield_rotation_speed * path_follow.get_parent().curve.get_baked_length() * delta
+		# reset the rotation when the loop is done:
+		if path_follow.progress >= path_follow.get_parent().curve.get_baked_length():
+				path_follow.progress = 0
+		
+		# Ensure the shield doesn't spin, when rotating:
+		$Path2D/PathFollow2D/Shield_Sprite2D.global_rotation = 0
+
+		
+func count_down_respawn_process(): # this function allows the player to respawn, 
+	# making the game more fun, as otherwise, one you die, its just boring!
+	await get_tree().create_timer(57).timeout # the player remains dead for 60 seconds (otherwise there's no incentive to stay alive).
+	# it is only 57 here because the last 3 are in the below countdown.
+	global_position = Vector2(576, 324)
+	player_respawning = true # the respawn process is starting!
+	if Global.multiplayer_game_over != 2:
+		$Respawning_Label.global_position = Vector2(405, 290) # change the position before showing so it shows in the correct place.
+		$Respawning_PointLight2D.global_position = Vector2(576, 324)
+		$Respawning_Sprite2D.global_position = Vector2(576, 324)
+		if not get_tree().paused:
+			if (Global.day_and_night % 2) == 0: # if it is night:
+				$Respawning_PointLight2D.show() # show the pointlight so this is visible.
+			$Respawning_Label.show() # The others are shown only during the day
+			$Respawning_Sprite2D.show()
+			$Respawning_Label.text = \"Respawning in 3...\"
+			await get_tree().create_timer(1).timeout
+			$Respawning_Label.text = \"Respawning in 2...\"
+			await get_tree().create_timer(1).timeout
+			$Respawning_Label.text = \"Respawning in 1...\"
+			await get_tree().create_timer(1).timeout
+			if not get_tree().paused: # confirm that the cutscene hasn't started during the past 3 seconds.
+				respawn_player()
+
+func respawn_player():
+	# Time for the respawning code:
+	Global.update_multiplayer_game_over(0) # resets the multiplayer game over value in global.
+	game_over_run = false # sets game over run as false, making a whole load of things run again!
+	health = 3 # resets health, and
+	food_bars = 5 # also food stats to full! 
+	$Respawning_Label.hide()
+	$Respawning_PointLight2D.hide()
+	$Respawning_Sprite2D.hide()
+	if died_from_mobs:
+		died_from_mobs = false
+	elif died_from_starvation:
+		died_from_starvation = false
+	else:
+		died_from_traps = false # reset what the player has died from, so it shows accurately when the game is truly over.
+	$Food_bar_AnimatedSprite2D.global_position = Vector2(-30,-65)
+	$Health_bar_AnimatedSprite2D.global_position = Vector2(-30, -20)
+	$PointLight2D.hide() # fixes bug where, as animate time of day() isnt run when dead, 
+	# changing the colour below will show the pointlight at day for a split second!
+	$AnimatedSprite2D.show() # show the animatedsprite2D
+	$CollisionShape2D.set_deferred(\"disabled\", false) # enable collisions!
+	$Food_bar_AnimatedSprite2D.show() # show food and health stats!
+	$Health_bar_AnimatedSprite2D.show()
+	if (Global.day_and_night % 2) == 0: # if it is night:
+		$PointLight2D.show() # show the pointlight!
+		$Food_Bars_PointLight2D.show() # show the pointlight 2ds of the previous sprites to make them visible.
+		$Health_Bar_PointLight2D.show()
+	$Food_Bars_PointLight2D.energy = 1
+	$Health_Bar_PointLight2D.energy = 1
+	$PointLight2D.color = Color8(255, 255, 255, 65) # change the pointlight color to be the original colour!
+	player_respawning = false # this only changes back if the cutscene is inactive. 
+	# otherwise, it could prevent the cutscene's code for this code and teh cutscenes overlapping. 
+	# plus, this is reset to false in the game_over_false code anyways. (assuming the respawning 3 seconds overlaps with that)
+"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6kkaa"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(600, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qlt18"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(800, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gik46"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(900, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hipgv"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(1100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_unloa"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(900, 100, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fv30f"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(1100, 100, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6262d"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(600, 100, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2lrks"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(800, 100, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pjl18"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(600, 200, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rglkg"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(800, 200, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yqhxw"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(600, 300, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ug1sd"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(800, 300, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qndmx"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(900, 200, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8rsgt"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(1100, 200, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m5r3s"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(900, 300, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hvn4u"]
+atlas = ExtResource("2_xkiwi")
+region = Rect2(1100, 300, 100, 100)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_c30tb"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6kkaa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qlt18")
+}],
+"loop": true,
+"name": &"move_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gik46")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hipgv")
+}],
+"loop": true,
+"name": &"move_down_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_unloa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fv30f")
+}],
+"loop": true,
+"name": &"move_down_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6262d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2lrks")
+}],
+"loop": true,
+"name": &"move_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pjl18")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rglkg")
+}],
+"loop": true,
+"name": &"move_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yqhxw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ug1sd")
+}],
+"loop": true,
+"name": &"move_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qndmx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8rsgt")
+}],
+"loop": true,
+"name": &"move_up_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m5r3s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hvn4u")
+}],
+"loop": true,
+"name": &"move_up_right",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_lgbhs"]
+radius = 12.0
+height = 24.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_egunb"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_twwmy")
+}],
+"loop": true,
+"name": &"100%",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_r15e5")
+}],
+"loop": true,
+"name": &"20%",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_cnpdn")
+}],
+"loop": true,
+"name": &"40%",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_o2rhu")
+}],
+"loop": true,
+"name": &"60%",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_55aps")
+}],
+"loop": true,
+"name": &"80%",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("7_4n7ct")
+}],
+"loop": true,
+"name": &"CRITICAL!",
+"speed": 5.0
+}]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_s6qwr"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_bqkfj")
+}],
+"loop": true,
+"name": &"1_Heart",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("10_68afl")
+}],
+"loop": true,
+"name": &"2_Hearts",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("11_ihlyc")
+}],
+"loop": true,
+"name": &"3_Hearts",
+"speed": 5.0
+}]
+
+[sub_resource type="Curve2D" id="Curve2D_1sqc5"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 54.1666, 10, 0, 0, 0, 0, 54.1666, 22, 0, 0, 0, 0, 50, 34, 0, 0, 0, 0, 39.5834, 46, 0, 0, 0, 0, 31.25, 54, 0, 0, 0, 0, 10.4166, 62, 0, 0, 0, 0, -8.33337, 62, 0, 0, 0, 0, -22.9166, 58, 0, 0, 0, 0, -29.1666, 54, 0, 0, 0, 0, -35.4166, 50, 0, 0, 0, 0, -39.5834, 44, 0, 0, 0, 0, -43.75, 40, 0, 0, 0, 0, -45.8334, 34, 0, 0, 0, 0, -50, 22, 0, 0, 0, 0, -47.9166, -2, 0, 0, 0, 0, -43.75, -12, 0, 0, 0, 0, -35.4166, -22, 0, 0, 0, 0, -25, -30, 0, 0, 0, 0, -10.4166, -36, 0, 0, 0, 0, 0, -36, 0, 0, 0, 0, 10.4166, -36, 0, 0, 0, 0, 20.8334, -34, 0, 0, 0, 0, 31.25, -32, 0, 0, 0, 0, 41.6666, -24, 0, 0, 0, 0, 50, -10, 0, 0, 0, 0, 54.1666, 0, 0, 0, 0, 0, 54.1666, 10)
+}
+point_count = 27
+
+[node name="Player" type="Area2D" groups=["Player"]]
+z_index = 1
+position = Vector2(662, 325)
+scale = Vector2(0.5, 0.5)
+script = SubResource("GDScript_v763d")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 3
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_c30tb")
+animation = &"move_up_right"
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 13)
+shape = SubResource("CapsuleShape2D_lgbhs")
+metadata/_edit_group_ = true
+
+[node name="Food_bar_AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 5
+position = Vector2(-188, -116)
+scale = Vector2(0.6, 0.6)
+sprite_frames = SubResource("SpriteFrames_egunb")
+animation = &"100%"
+
+[node name="Health_bar_AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 5
+position = Vector2(-188, -100)
+scale = Vector2(0.12, 0.12)
+sprite_frames = SubResource("SpriteFrames_s6qwr")
+animation = &"1_Heart"
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+z_index = 12
+scale = Vector2(0.12, 0.12)
+color = Color(1, 1, 1, 0.254902)
+energy = 4.0
+texture = ExtResource("11_01ilh")
+
+[node name="Panting_AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_pegyh")
+
+[node name="Dying_AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("13_d82q5")
+volume_db = -40.0
+
+[node name="Health_Decreased_AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("14_1yuv5")
+volume_db = -20.0
+
+[node name="Health_Bar_PointLight2D" type="PointLight2D" parent="."]
+position = Vector2(1220, -20)
+scale = Vector2(0.12, 0.12)
+texture = ExtResource("11_ihlyc")
+
+[node name="Food_Bars_PointLight2D" type="PointLight2D" parent="."]
+scale = Vector2(0.6, 0.6)
+
+[node name="Path2D" type="Path2D" parent="."]
+position = Vector2(-4, -4)
+scale = Vector2(0.96, 1)
+curve = SubResource("Curve2D_1sqc5")
+
+[node name="PathFollow2D" type="PathFollow2D" parent="Path2D"]
+position = Vector2(54.1666, 10)
+rotation = 1.5708
+
+[node name="Shield_Sprite2D" type="Sprite2D" parent="Path2D/PathFollow2D"]
+z_index = 4
+position = Vector2(0, 9.5)
+scale = Vector2(0.07, 0.07)
+texture = ExtResource("15_snto7")
+
+[node name="Respawning_Sprite2D" type="Sprite2D" parent="."]
+z_index = 4
+texture = ExtResource("16_yw5vd")
+
+[node name="Respawning_PointLight2D" type="PointLight2D" parent="."]
+texture = ExtResource("16_yw5vd")
+
+[node name="Respawning_Label" type="Label" parent="."]
+z_index = 5
+offset_right = 40.0
+offset_bottom = 23.0
+scale = Vector2(5, 5)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

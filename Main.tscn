@@ -1,0 +1,177 @@
+[gd_scene load_steps=5 format=3 uid="uid://c6mtoc2wgq033"]
+
+[ext_resource type="PackedScene" uid="uid://bepxtddddmlg4" path="res://Player.tscn" id="2_bcccv"]
+[ext_resource type="Texture2D" uid="uid://co6ymycy5c03l" path="res://Critical_food_texture.png" id="3_uq027"]
+[ext_resource type="Texture2D" uid="uid://2nswdecguh41" path="res://Background.png" id="4_hqnie"]
+
+[sub_resource type="GDScript" id="GDScript_7cmft"]
+resource_name = "Main.gd"
+script/source = "extends Node
+var player_location = Global.player_position
+const mob_scene = preload(\"res://mob.tscn\")
+const food_scene = preload(\"res://food.tscn\")
+const fuel_scene = preload(\"res://fuel.tscn\")
+const reactor_scene = preload(\"res://Reactor.tscn\")
+const player_scene = preload(\"res://Player.tscn\")
+const player_2_scene = preload(\"res://Player_2.tscn\")
+const boss_mob_scene = preload(\"res://Boss_mob.tscn\")
+const sleeper_mob_scene = preload(\"res://sleeper_mob.tscn\")
+const bomb_trap_scene = preload(\"res://bomb_trap.tscn\")
+const shield_scene = preload(\"res://Shield.tscn\")
+var spawned_fuel = false
+var spawned_boss_mobs = false
+var spawned_sleeper_mobs = false
+signal game_paused_true
+signal game_paused_false
+
+
+func _ready():
+	# this is needed for a feature that will be added, pausing the game for 4 seconds when transitioning back into night. 
+	Signals.connect(\"daytime_over\", start_cutscene)
+	if Global.single_player:
+		$CanvasModulate.hide()
+	var reactor = reactor_scene.instantiate()
+	add_child(reactor)
+	var shield = shield_scene.instantiate()
+	add_child(shield)
+	spawn_food()
+	spawn_mobs()
+	Global.update_day_and_night(0)
+	Global.update_fuel(0)
+	if not Global.single_player:
+		multiplayer_camera()
+		var player_2 = player_2_scene.instantiate()
+		add_child(player_2)
+	if not Global.Normal_mode:
+		for i in range (5):
+			var bomb_trap = bomb_trap_scene.instantiate()
+			add_child(bomb_trap)
+	start_cutscene() # pauses the game, and shows the cutscene for the first night!
+	# this was put before the pause, as global cannot run code when main is paused, 
+	# and nor can fuel which is what needs to get this message.
+
+
+func multiplayer_camera():
+	var camera = Camera2D.new()
+	camera.position = Vector2(576, 324) # Center of the map
+	camera.zoom = Vector2(0.79, 0.79)
+	add_child(camera)
+	camera.make_current()
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(_delta):
+	if Global.game_over:
+		$CanvasModulate.hide()
+	else:
+		if not Global.single_player:
+			if (Global.day_and_night % 2) == 0 and not Global.game_over:
+				$CanvasModulate.show()
+			else:
+				$CanvasModulate.hide()
+		spawn_boss_mobs()
+
+
+func spawn_mobs():
+	for i in range(5):
+		var Mob = mob_scene.instantiate()
+		add_child(Mob)
+
+
+func spawn_food():
+	if Global.single_player:
+		for i in range(5):
+			var food = food_scene.instantiate()
+			add_child(food) # spawn a food.
+	else:
+		for i in range(10):
+			var food = food_scene.instantiate()
+			add_child(food) # spawn a food.
+
+
+func spawn_boss_mobs():
+	if (Global.day_and_night % 2) == 0 and not spawned_boss_mobs: 
+		# if it is night, and this hasn't run before, then:
+		spawned_boss_mobs = true # make sure it doesn't run again.
+		if (((Global.day_and_night+2)/2)%3) == 0: # check if the number of nights is a multiple of 3, if it is:
+			var boss_mob = boss_mob_scene.instantiate() # spawn a new boss mob!
+			add_child(boss_mob) 
+		else: # if it isn't a multiple of three do nothing as a new boss mob only spawns into the game every 3 nights.
+			return
+	elif (Global.day_and_night % 2) != 0 and spawned_boss_mobs: 
+		# if it has ticked over to day, then make the spawned variable false again, so that when it ticks to night, 
+		# boss mobs can spawn.
+		spawned_boss_mobs = false
+
+
+func spawn_sleeper_mobs():
+	if (((Global.day_and_night+2)/2)%2) == 0: # check if the number of nights is even, if it is:
+		var sleeper_mob = sleeper_mob_scene.instantiate()
+		add_child(sleeper_mob)
+
+
+func start_cutscene():
+	var fuel = fuel_scene.instantiate()
+	add_child(fuel) # spawn a fuel
+	if not Global.Normal_mode:
+		spawn_sleeper_mobs() # sleeper mobs are only spawned in hard mode. 
+	Signals.game_paused_true.emit()
+	get_tree().paused = true
+	$Label.show()
+	$Label_background_Sprite2D.show()
+	$Label_PointLight2D.show()
+	$CanvasModulate.show()
+	$Label.text = \"Quick! Memorise the position of the fuel! \\n                        Night begins in 3...\"
+	await get_tree().create_timer(1.0).timeout
+	$Label.text = \"Quick! Memorise the position of the fuel! \\n                        Night begins in 2...\"
+	await get_tree().create_timer(1.0).timeout
+	$Label.text = \"Quick! Memorise the position of the fuel! \\n                        Night begins in 1...\"
+	await get_tree().create_timer(1.0).timeout
+	Signals.game_paused_false.emit()
+	get_tree().paused = false
+	$Label.hide()
+	$Label_background_Sprite2D.hide()
+	$Label_PointLight2D.hide()
+	if Global.single_player:
+		$CanvasModulate.hide()
+"
+
+[node name="Main" type="Node"]
+process_mode = 1
+script = SubResource("GDScript_7cmft")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+z_index = 1
+offset_left = -160.0
+offset_top = -88.0
+offset_right = 3729.0
+offset_bottom = 2101.0
+scale = Vector2(0.38, 0.38)
+texture = ExtResource("4_hqnie")
+
+[node name="Player" parent="." instance=ExtResource("2_bcccv")]
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+visible = false
+z_index = 1
+color = Color(0, 0, 0, 1)
+
+[node name="Label" type="Label" parent="."]
+z_index = 6
+offset_left = 260.0
+offset_top = -70.0
+offset_right = 261.0
+offset_bottom = -47.0
+scale = Vector2(2, 2)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+
+[node name="Label_PointLight2D" type="PointLight2D" parent="."]
+position = Vector2(576, -20)
+scale = Vector2(0.9, 0.9)
+texture = ExtResource("3_uq027")
+
+[node name="Label_background_Sprite2D" type="Sprite2D" parent="."]
+z_index = 5
+position = Vector2(576, -20)
+scale = Vector2(0.9, 0.9)
+texture = ExtResource("3_uq027")

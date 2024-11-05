@@ -1,0 +1,91 @@
+[gd_scene load_steps=7 format=3 uid="uid://y6215jsfcn2u"]
+
+[ext_resource type="Texture2D" uid="uid://dim2236c8xrix" path="res://Main_Title.png" id="1_a6w6e"]
+[ext_resource type="Texture2D" uid="uid://cga1kubcxilti" path="res://Start_Button.png" id="1_ytf5d"]
+[ext_resource type="Texture2D" uid="uid://dvovr5ms5ncay" path="res://Instructions_Button.png" id="2_5o33w"]
+[ext_resource type="Texture2D" uid="uid://k0stww3c2rki" path="res://Options_Button.png" id="4_6fjr3"]
+[ext_resource type="Texture2D" uid="uid://cr8p7lv0c25eb" path="res://go_to_instructions.png" id="5_vby6o"]
+
+[sub_resource type="GDScript" id="GDScript_yxjlt"]
+script/source = "extends Node
+const Main_Title = preload(\"res://Main_Title.png\")
+const Hard_Mode_Main_Title = preload(\"res://Hard_Mode_Main_Title.png\")
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	preload(\"res://Main.tscn\")
+	$Go_to_instructions_Sprite2D.hide()
+	# since this was first introduced, I hae made the options section far more optimised, and easier to load.
+	# this means preloading it is un necessary, but I am keeping it here, as there is a tiny <0.5 second lag
+	# on the FIRST time the options scene is accessed in a run of the project, without this. Therefore, it might
+	# as well remain because it doesn't hinder anything and helps optimise! :D
+	if Global.Normal_mode:
+		$TextureRect.texture = Main_Title
+	else:
+		$TextureRect.texture = Hard_Mode_Main_Title
+
+
+func _on_start_button_pressed():
+	if Global.instructions_opened:
+		get_tree().change_scene_to_file(\"res://Main.tscn\")
+	else:
+		$Go_to_instructions_Sprite2D.show()
+
+
+func _on_instructions_button_pressed():
+	get_tree().change_scene_to_file(\"res://Instructions_Scene.tscn\")
+
+
+func _on_options_button_pressed():
+	get_tree().change_scene_to_file(\"res://Options_Scene.tscn\")
+"
+
+[node name="Start_Scene" type="Node"]
+script = SubResource("GDScript_yxjlt")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+z_index = 1
+offset_left = -1.0
+offset_right = 1151.0
+offset_bottom = 648.0
+texture = ExtResource("1_a6w6e")
+
+[node name="Start_Button" type="Button" parent="."]
+z_index = 2
+offset_left = 416.0
+offset_top = 534.0
+offset_right = 1695.0
+offset_bottom = 943.0
+scale = Vector2(0.25, 0.25)
+icon = ExtResource("1_ytf5d")
+flat = true
+
+[node name="Instructions_Button" type="Button" parent="."]
+z_index = 2
+offset_left = 797.0
+offset_top = 555.0
+offset_right = 1253.0
+offset_bottom = 675.0
+scale = Vector2(0.59, 0.59)
+icon = ExtResource("2_5o33w")
+flat = true
+
+[node name="Options_Button" type="Button" parent="."]
+z_index = 2
+offset_left = 140.0
+offset_top = 555.0
+offset_right = 1300.0
+offset_bottom = 1034.0
+scale = Vector2(0.15, 0.15)
+icon = ExtResource("4_6fjr3")
+flat = true
+
+[node name="Go_to_instructions_Sprite2D" type="Sprite2D" parent="."]
+z_index = 2
+position = Vector2(576, 476)
+texture = ExtResource("5_vby6o")
+
+[connection signal="pressed" from="Start_Button" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="Instructions_Button" to="." method="_on_instructions_button_pressed"]
+[connection signal="pressed" from="Options_Button" to="." method="_on_options_button_pressed"]

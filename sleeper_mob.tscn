@@ -1,0 +1,111 @@
+[gd_scene load_steps=15 format=3 uid="uid://hfrypldrvv5y"]
+
+[ext_resource type="Script" path="res://Sleeper_Mob.gd" id="1_tnmaj"]
+[ext_resource type="Texture2D" uid="uid://c60lpt57lfpwd" path="res://Sleeper Mob skin.png" id="2_m7rsc"]
+[ext_resource type="Texture2D" uid="uid://d1cwfojrs0tw8" path="res://white_circle.png" id="3_56g7l"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i0c73"]
+atlas = ExtResource("2_m7rsc")
+region = Rect2(0, 460, 458, 460)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lvcbw"]
+atlas = ExtResource("2_m7rsc")
+region = Rect2(458, 460, 458, 460)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rubhp"]
+atlas = ExtResource("2_m7rsc")
+region = Rect2(916, 460, 458, 460)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qkf08"]
+atlas = ExtResource("2_m7rsc")
+region = Rect2(1374, 460, 458, 460)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_laveu"]
+atlas = ExtResource("2_m7rsc")
+region = Rect2(0, 0, 458, 460)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j2rk2"]
+atlas = ExtResource("2_m7rsc")
+region = Rect2(458, 0, 458, 460)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x4wtn"]
+atlas = ExtResource("2_m7rsc")
+region = Rect2(916, 0, 458, 460)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y7b5v"]
+atlas = ExtResource("2_m7rsc")
+region = Rect2(1374, 0, 458, 460)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_shfq4"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i0c73")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lvcbw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rubhp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qkf08")
+}],
+"loop": true,
+"name": &"move_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_laveu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j2rk2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x4wtn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y7b5v")
+}],
+"loop": true,
+"name": &"move_right",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hvse6"]
+radius = 75.0067
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_k7ggg"]
+radius = 8.0
+height = 24.0
+
+[node name="Sleeper_Mob" type="CharacterBody2D" groups=["Sleeper_Mobs"]]
+z_index = 1
+script = ExtResource("1_tnmaj")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 3
+scale = Vector2(0.07, 0.07)
+sprite_frames = SubResource("SpriteFrames_shfq4")
+animation = &"move_left"
+
+[node name="Proximity_Area2D" type="Area2D" parent="."]
+
+[node name="Proximity_CollisionShape2D" type="CollisionShape2D" parent="Proximity_Area2D"]
+shape = SubResource("CircleShape2D_hvse6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(2, 7)
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_k7ggg")
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+z_index = 2
+scale = Vector2(0.065, 0.065)
+texture = ExtResource("3_56g7l")
+
+[connection signal="area_entered" from="Proximity_Area2D" to="." method="_on_proximity_area_2d_area_entered"]
+[connection signal="area_exited" from="Proximity_Area2D" to="." method="_on_proximity_area_2d_area_exited"]
+[connection signal="body_entered" from="Proximity_Area2D" to="." method="_on_proximity_area_2d_body_entered"]
+[connection signal="body_exited" from="Proximity_Area2D" to="." method="_on_proximity_area_2d_body_exited"]

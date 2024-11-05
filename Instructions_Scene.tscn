@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://bdjjofvl3mm5m"]
+
+[ext_resource type="Script" path="res://Instructions_Scene.gd" id="1_nxuhx"]
+[ext_resource type="Texture2D" uid="uid://k8lq8kitd7b3" path="res://Back_Button.png" id="2_h4sny"]
+[ext_resource type="Texture2D" uid="uid://dl8qkqk2fpiy6" path="res://INSTRUCTIONS_page_1.png" id="2_nhlqd"]
+[ext_resource type="Texture2D" uid="uid://bbhpxr55ocqj1" path="res://Next_Button.png" id="6_pa0hn"]
+
+[node name="Instructions_Scene" type="Node"]
+script = ExtResource("1_nxuhx")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+z_index = 1
+offset_right = 1152.0
+offset_bottom = 648.0
+texture = ExtResource("2_nhlqd")
+
+[node name="Back_Button" type="Button" parent="."]
+z_index = 2
+offset_left = 1.0
+offset_top = -9.0
+offset_right = 509.0
+offset_bottom = 279.0
+scale = Vector2(0.25, 0.25)
+icon = ExtResource("2_h4sny")
+flat = true
+
+[node name="Next_Button" type="Button" parent="."]
+z_index = 2
+offset_left = 926.0
+offset_top = 543.0
+offset_right = 2086.0
+offset_bottom = 1057.0
+scale = Vector2(0.15, 0.15)
+icon = ExtResource("6_pa0hn")
+flat = true
+
+[connection signal="pressed" from="Back_Button" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="Next_Button" to="." method="_on_next_button_pressed"]
