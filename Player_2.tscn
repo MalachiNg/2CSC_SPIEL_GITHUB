@@ -540,7 +540,7 @@ func count_down_respawn_process(): # this function allows the player to respawn,
 		$Respawning_Label.global_position = Vector2(405, 290) # change the position before showing so it shows in the correct place.
 		$Respawning_PointLight2D.global_position = Vector2(576, 324)
 		$Respawning_Sprite2D.global_position = Vector2(576, 324)
-		if not get_tree().paused:
+		if not get_tree().paused: 
 			if (Global.day_and_night % 2) == 0: # if it is night:
 				$Respawning_PointLight2D.show() # show the pointlight so this is visible.
 			$Respawning_Label.show() # The others are shown only during the day
