@@ -417,30 +417,28 @@ func multiplayer_game_over():
 	$Game_over_screen_Sprite2D.scale = Vector2(10,10)
 	$Game_Over_Back_Button.scale = Vector2(0.8,0.8) ; $Game_Over_Back_Button.global_position = Vector2(-50,-50)
 	$Player_2_Died_from_Label.show() ; $Died_from_Label.show()
-	$Score.scale = Vector2(7,7) ; $Score.global_position = Vector2(430,420)
+	$Score.scale = Vector2(7,7) ; $Score.global_position = Vector2(340,420)
 	$Nights_survived.scale = Vector2(7,7) ; $Nights_survived.global_position = Vector2(290, 500)
 	$Game_over_screen_Sprite2D.global_position = Vector2(576, 324)
 	
 	calculate_score_and_nights_survived()
 	
-	$Score.text = \"SCORE: \"+ str(final_score)
-	$Nights_survived.text = \"NIGHTS SURVIVED: \" + str(nights_survived)
-	$Player_2_Died_from_Label.global_position = Vector2(240, 150)
-	$Died_from_Label.global_position = Vector2(240, 70)
+	$Score.text = \"PUNKTZAHL: \"+ str(final_score)
+	$Nights_survived.text = \"NÄCHTE ÜBERLEBEN: \" + str(nights_survived)
+	$Player_2_Died_from_Label.global_position = Vector2(210, 150)
+	$Died_from_Label.global_position = Vector2(210, 70)
 	if Global.player_2_died_from == 1:
-		$Player_2_Died_from_Label.text = \"PLAYER 2 DIED FROM STARVATION\"
-		$Player_2_Died_from_Label.position.x -= 150
+		$Player_2_Died_from_Label.text = \"SPIELER 2 AN HUNGER GESTORBEN\"
 	elif Global.player_2_died_from == 2:
-		$Player_2_Died_from_Label.text = \"PLAYER 2 DIED FROM MOBS\"
+		$Player_2_Died_from_Label.text = \"SPIELER 2 AN MOBS GESTORBEN\"
 	else:
-		$Player_2_Died_from_Label.text = \"PLAYER 2 DIED FROM BOMBS\"
+		$Player_2_Died_from_Label.text = \"SPIELER 2 AN BOMBEN GESTORBEN\"
 	if died_from_mobs:
-		$Died_from_Label.text = \"PLAYER 1 DIED FROM MOBS\"
+		$Died_from_Label.text = \"SPIELER 1 AN MOBS GESTORBEN\"
 	if died_from_starvation:
-		$Died_from_Label.text = \"PLAYER 1 DIED FROM STARVATION\"
-		$Died_from_Label.position.x -= 150
+		$Died_from_Label.text = \"SPIELER 1 AN HUNGER GESTORBEN\"
 	if died_from_traps:
-		$Died_from_Label.text = \"PLAYER 1 DIED FROM BOMBS\"
+		$Died_from_Label.text = \"SPIELER 1 AN BOMBEN GESTORBEN\"
 
 
 func game_over():
@@ -454,22 +452,21 @@ func game_over():
 	
 	calculate_score_and_nights_survived()
 	
-	$Score.text = \"SCORE: \"+ str(final_score)
-	$Score.position = Vector2(-50,30)
+	$Score.text = \"PUNKTZAHL: 2,000,000\" #+ str(final_score)
+	$Score.position = Vector2(-80,30)
 	$Score.show()
 	
-	$Nights_survived.text = \"NIGHTS SURVIVED: \" + str(nights_survived)
+	$Nights_survived.text = \"NÄCHTE ÜBERLEBEN: \" + str(nights_survived)
 	$Nights_survived.position = Vector2(-90, 50)
 	$Nights_survived.show()
 	
 	$Died_from_Label.scale = Vector2(1, 1)
 	if died_from_mobs:
-		$Died_from_Label.text = \"DIED FROM MOBS\"
+		$Died_from_Label.text = \"AN MOBS GESTORBEN\"
 	elif died_from_starvation:
-		$Died_from_Label.text = \"DIED FROM STARVATION\"
-		$Died_from_Label.position.x = -100
+		$Died_from_Label.text = \"AN HUNGER GESTORBEN\"
 	elif died_from_traps:
-		$Died_from_Label.text = \"DIED FROM BOMBS\"
+		$Died_from_Label.text = \"AN BOMBEN GESTORBEN\"
 		# CHANGE THIS IF MORE TRAPS ARE ADDED THAT AREN'T BOMBS! 
 	Global.update_game_over(true)
 
@@ -764,19 +761,19 @@ func game_paused_false():
 		Global.update_multiplayer_game_over(1) # this will have changed during the cutscene, bring it back so they don't respawn.
 		game_over_run = true # this too.
 		if player_respawning_second == 1:
-			$Respawning_Label.text = \"Respawning in 1...\"
+			$Respawning_Label.text = \"Respawnen in 1...\"
 			await get_tree().create_timer(1).timeout
 		elif player_respawning_second == 2:
-			$Respawning_Label.text = \"Respawning in 2...\"
+			$Respawning_Label.text = \"Respawnen in 2...\"
 			await get_tree().create_timer(1).timeout
-			$Respawning_Label.text = \"Respawning in 1...\"
+			$Respawning_Label.text = \"Respawnen in 1...\"
 			await get_tree().create_timer(1).timeout
 		else: # the only other case is == 3:
-			$Respawning_Label.text = \"Respawning in 3...\"
+			$Respawning_Label.text = \"Respawnen in 3...\"
 			await get_tree().create_timer(1).timeout
-			$Respawning_Label.text = \"Respawning in 2...\"
+			$Respawning_Label.text = \"Respawnen in 2...\"
 			await get_tree().create_timer(1).timeout
-			$Respawning_Label.text = \"Respawning in 1...\"
+			$Respawning_Label.text = \"Respawnen in 1...\"
 			await get_tree().create_timer(1).timeout
 		respawn_player() # runs the respawn code to bring the player back in the game.
 		player_respawning_second = 0 # this shows the next runs of the game_paused_false that this needn't be run.
@@ -849,18 +846,17 @@ func count_down_respawn_process(): # this function allows the player to respawn,
 				$Respawning_PointLight2D.show() # show the pointlight so this is visible.
 			$Respawning_Label.show() # The others are shown only during the day
 			$Respawning_Sprite2D.show()
-			$Respawning_Label.text = \"Respawning in 3...\"
+			$Respawning_Label.text = \"Respawnen in 3...\"
 			await get_tree().create_timer(1.0).timeout
-			$Respawning_Label.text = \"Respawning in 2...\"
+			$Respawning_Label.text = \"Respawnen in 2...\"
 			await get_tree().create_timer(1.0).timeout
-			$Respawning_Label.text = \"Respawning in 1...\"
+			$Respawning_Label.text = \"Respawnen in 1...\"
 			await get_tree().create_timer(1.0).timeout
 			if not get_tree().paused: # confirm the cutscene hasn't started during the countdown.
 				respawn_player()
 
 func respawn_player():
 	# Time for the respawning code:
-	print(\"run respawn player\")
 	Global.update_multiplayer_game_over(0) # resets the multiplayer game over value in global.
 	game_over_run = false # sets game over run as false, making a whole load of things run again!
 	health = 3 # resets health, and
@@ -1275,9 +1271,9 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 
 [node name="Died_from_Label" type="Label" parent="."]
 z_index = 5
-offset_left = -80.0
+offset_left = -90.0
 offset_top = -60.0
-offset_right = -40.0
+offset_right = -50.0
 offset_bottom = -37.0
 scale = Vector2(6, 6)
 

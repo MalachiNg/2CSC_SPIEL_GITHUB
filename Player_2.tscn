@@ -531,7 +531,7 @@ func display_shield(delta):
 
 		
 func count_down_respawn_process(): # this function allows the player to respawn, 
-	# making the game more fun, as otherwise, one you die, its just boring!
+	# making the game more fun, as otherwise, once you die, it's just boring!
 	await get_tree().create_timer(57).timeout # the player remains dead for 60 seconds (otherwise there's no incentive to stay alive).
 	# it is only 57 here because the last 3 are in the below countdown.
 	global_position = Vector2(576, 324)

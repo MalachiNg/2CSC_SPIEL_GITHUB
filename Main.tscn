@@ -121,11 +121,11 @@ func start_cutscene():
 	$Label_background_Sprite2D.show()
 	$Label_PointLight2D.show()
 	$CanvasModulate.show()
-	$Label.text = \"Quick! Memorise the position of the fuel! \\n                        Night begins in 3...\"
+	$Label.text = \"Schnell! Merken Sie sich die Position des Kraftstoffs! \\n                                Nacht beginnt in 3...\"
 	await get_tree().create_timer(1.0).timeout
-	$Label.text = \"Quick! Memorise the position of the fuel! \\n                        Night begins in 2...\"
+	$Label.text = \"Schnell! Merken Sie sich die Position des Kraftstoffs! \\n                                Nacht beginnt in 2...\"
 	await get_tree().create_timer(1.0).timeout
-	$Label.text = \"Quick! Memorise the position of the fuel! \\n                        Night begins in 1...\"
+	$Label.text = \"Schnell! Merken Sie sich die Position des Kraftstoffs! \\n                                Nacht beginnt in 1...\"
 	await get_tree().create_timer(1.0).timeout
 	Signals.game_paused_false.emit()
 	get_tree().paused = false
@@ -159,10 +159,10 @@ color = Color(0, 0, 0, 1)
 [node name="Label" type="Label" parent="."]
 z_index = 6
 offset_left = 260.0
-offset_top = -70.0
+offset_top = -63.0
 offset_right = 261.0
-offset_bottom = -47.0
-scale = Vector2(2, 2)
+offset_bottom = -40.0
+scale = Vector2(1.58, 1.58)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 
 [node name="Label_PointLight2D" type="PointLight2D" parent="."]

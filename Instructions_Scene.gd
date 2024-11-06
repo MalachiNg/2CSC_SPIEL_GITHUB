@@ -44,7 +44,7 @@ func _process(_delta):
 		$TextureRect.texture = page_7
 		$Back_Button.scale = Vector2(0.35, 0.35)
 		$Back_Button.global_position = Vector2(35, -11)
-		$Next_Button.global_position = Vector2(950, 470) 
+		$Next_Button.global_position = Vector2(950, 565) 
 	elif page == 8:
 		$TextureRect.texture = page_8
 		$Back_Button.global_position = Vector2(0, -11)
