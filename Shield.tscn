@@ -8,6 +8,7 @@ size = Vector2(18, 20)
 
 [node name="Shield" type="Area2D" groups=["Shields"]]
 z_index = 1
+scale = Vector2(2, 2)
 script = ExtResource("1_f6iwu")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

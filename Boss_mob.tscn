@@ -165,7 +165,7 @@ height = 244.898
 
 [node name="Boss_mob" type="CharacterBody2D" groups=["Boss_mobs"]]
 position = Vector2(546, 353)
-scale = Vector2(0.7, 0.7)
+scale = Vector2(1.4, 1.4)
 script = ExtResource("1_w75u0")
 metadata/_edit_group_ = true
 

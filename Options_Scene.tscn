@@ -19,97 +19,97 @@ script = ExtResource("1_8gq7s")
 [node name="TextureRect" type="TextureRect" parent="."]
 offset_right = 8662.0
 offset_bottom = 4872.0
-scale = Vector2(0.133, 0.133)
+scale = Vector2(0.267, 0.267)
 texture = ExtResource("2_2dx5c")
 
 [node name="Single_Player_Button" type="Button" parent="."]
-offset_left = 50.0
-offset_top = 378.0
-offset_right = 1210.0
-offset_bottom = 584.0
-scale = Vector2(0.754, 0.754)
+offset_left = 100.0
+offset_top = 756.0
+offset_right = 1260.0
+offset_bottom = 962.0
+scale = Vector2(1.508, 1.508)
 icon = ExtResource("2_axyfp")
 flat = true
 
 [node name="Multiplayer_Button" type="Button" parent="."]
-offset_left = 282.0
-offset_top = 526.0
-offset_right = 1442.0
-offset_bottom = 692.0
-scale = Vector2(0.75, 0.75)
+offset_left = 564.0
+offset_top = 1052.0
+offset_right = 1724.0
+offset_bottom = 1218.0
+scale = Vector2(1.5, 1.5)
 icon = ExtResource("3_s8tt5")
 flat = true
 
 [node name="Back_Button" type="Button" parent="."]
 z_index = 10
-offset_left = 1.0
-offset_top = -9.0
-offset_right = 509.0
-offset_bottom = 279.0
-scale = Vector2(0.4, 0.4)
+offset_left = 2.0
+offset_top = -18.0
+offset_right = 510.0
+offset_bottom = 270.0
+scale = Vector2(0.8, 0.8)
 icon = ExtResource("4_8vaa4")
 flat = true
 
 [node name="Next_Button" type="Button" parent="."]
 z_index = 10
-offset_left = 971.0
-offset_top = 3.0
-offset_right = 2131.0
-offset_bottom = 659.0
-scale = Vector2(0.15, 0.15)
+offset_left = 1942.0
+offset_top = 6.0
+offset_right = 3102.0
+offset_bottom = 662.0
+scale = Vector2(0.3, 0.3)
 icon = ExtResource("5_eaqws")
 flat = true
 
 [node name="Hard_Mode_Button" type="Button" parent="."]
-offset_left = 207.0
-offset_top = 489.0
-offset_right = 2535.0
-offset_bottom = 989.0
-scale = Vector2(0.3, 0.3)
+offset_left = 414.0
+offset_top = 978.0
+offset_right = 2742.0
+offset_bottom = 1478.0
+scale = Vector2(0.6, 0.6)
 icon = ExtResource("9_8h18k")
 
 [node name="Normal_Mode_Button" type="Button" parent="."]
-offset_left = 205.0
-offset_top = 336.0
-offset_right = 2533.0
-offset_bottom = 836.0
-scale = Vector2(0.3, 0.3)
+offset_left = 410.0
+offset_top = 672.0
+offset_right = 2738.0
+offset_bottom = 1172.0
+scale = Vector2(0.6, 0.6)
 icon = ExtResource("10_bu6h8")
 flat = true
 
 [node name="Unmute_Button" type="Button" parent="."]
-offset_left = 41.0
-offset_top = 331.0
-offset_right = 1093.0
-offset_bottom = 1103.0
-scale = Vector2(0.4, 0.4)
+offset_left = 82.0
+offset_top = 662.0
+offset_right = 1134.0
+offset_bottom = 1434.0
+scale = Vector2(0.8, 0.8)
 icon = ExtResource("11_yub4o")
 flat = true
 
 [node name="Mute_Button" type="Button" parent="."]
-offset_left = 636.0
-offset_top = 332.0
-offset_right = 2056.0
-offset_bottom = 1264.0
-scale = Vector2(0.33, 0.33)
+offset_left = 1272.0
+offset_top = 664.0
+offset_right = 2692.0
+offset_bottom = 1596.0
+scale = Vector2(0.66, 0.66)
 icon = ExtResource("12_grnkl")
 flat = true
 
 [node name="Cursor_Button" type="Button" parent="."]
-offset_left = 750.0
-offset_top = 400.0
-offset_right = 1472.0
-offset_bottom = 915.0
-scale = Vector2(0.4, 0.4)
+offset_left = 1500.0
+offset_top = 800.0
+offset_right = 2222.0
+offset_bottom = 1315.0
+scale = Vector2(0.8, 0.8)
 icon = ExtResource("11_s2pts")
 flat = true
 
 [node name="WASD_and_arrows_Button" type="Button" parent="."]
-offset_left = 100.0
-offset_top = 430.0
-offset_right = 1168.0
-offset_bottom = 821.0
-scale = Vector2(0.4, 0.4)
+offset_left = 200.0
+offset_top = 860.0
+offset_right = 1268.0
+offset_bottom = 1251.0
+scale = Vector2(0.8, 0.8)
 icon = ExtResource("11_lnohr")
 flat = true
 

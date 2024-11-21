@@ -82,6 +82,7 @@ height = 24.0
 
 [node name="Sleeper_Mob" type="CharacterBody2D" groups=["Sleeper_Mobs"]]
 z_index = 1
+scale = Vector2(2, 2)
 script = ExtResource("1_tnmaj")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]

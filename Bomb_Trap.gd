@@ -44,8 +44,8 @@ func spawn_in_random_location():
 	$CollisionShape2D.set_deferred("disabled", true) # this deactivates the collisions so mob wont collide with player during this code.
 	# this spawns the mob in a reandom location, which is no more than 200 pixels away from the player,
 	# to keep things fair. otherwise mobs will spawn on the player and instantly kill them, which sucks!
-	var random_x = randf_range(0, 1152)  # generates a random x value within the co-ordinates of the map.
-	var random_y = randf_range(0, 648)  # generates a random y value within the co-ordinates of the map.
+	var random_x = randf_range(0, 2304)  # generates a random x value within the co-ordinates of the map.
+	var random_y = randf_range(0, 1296)  # generates a random y value within the co-ordinates of the map.
 	var distance_to_player : float
 	var distance_to_player_2 : float
 	global_position = Vector2(random_x, random_y) # This sets the random numbers to the global position.

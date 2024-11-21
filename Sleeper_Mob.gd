@@ -1,5 +1,5 @@
 extends CharacterBody2D  # using a 2D environment.
-@onready var speed = 60  # slowed down as 150 was too difficult for players to evade, especially since speed increases.
+@onready var speed = 120  # slowed down as 150 was too difficult for players to evade, especially since speed increases.
 # then even further slowed down in response to feedback to make the game slower, to cater to the target demographic.
 @onready var player_target_position: Vector2 = Vector2.ZERO
 @onready var player_2_target_position: Vector2 = Vector2.ZERO
@@ -146,8 +146,8 @@ func spawn_in_random_location():
 	# otherwise mobs will spawn on the player and instantly kill them, which sucks!
 	$AnimatedSprite2D.hide()
 	$CollisionShape2D.set_deferred("disabled", true) # this deactivates the collisions so mob wont collide with player during this code.
-	var random_x = randf_range(0, 1152)  # generates a random x value within the co-ordinates of the map.
-	var random_y = randf_range(0, 648)  # generates a random y value within the co-ordinates of the map.
+	var random_x = randf_range(0, 2304)  # generates a random x value within the co-ordinates of the map.
+	var random_y = randf_range(0, 1296)  # generates a random y value within the co-ordinates of the map.
 	var distance_to_player : float
 	var distance_to_player_2 : float
 	global_position = Vector2(random_x, random_y) # This sets the random numbers to the global position.

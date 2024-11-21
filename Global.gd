@@ -25,16 +25,6 @@ func update_player_position(pos: Vector2):  # called function update_player_posi
 	player_position = pos  # the player_position variable is set to the Vector2 Variable in the parameter.
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	pass
-
-
 func daytime_process():
 	if (day_and_night % 2) != 0:  # this checks if it is day, to check if the following should be run.
 		daytime_process_declarations += 1

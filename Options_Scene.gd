@@ -6,7 +6,7 @@ const Unselected_2_Players = preload("res://Unselected_2_Players.png")
 @onready var page = 1
 
 # TextureRext textures, the different pages:
-const Single_or_Multiplayer = preload("res://Single_or_Multiplayer.png")
+# The first one is removed as it is default, so this is un necessary, but also was causing parse errors in the script.
 const Normal_or_Hard_Mode = preload("res://Normal_or_Hard_Mode.png")
 const Mute_or_Unmute = preload("res://Mute_or_Unmute.png")
 const WASD_and_arrows_or_cursor = preload("res://WASD_and_arrows_or_cursor.png")
@@ -45,7 +45,6 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	if page == 1:
-		$TextureRect.texture = Single_or_Multiplayer
 		$Single_Player_Button.show()
 		$Multiplayer_Button.show()
 
@@ -87,20 +86,20 @@ func _on_multiplayer_button_pressed():
 
 func Selected_Multiplayer():
 	$Single_Player_Button.icon = Unselected_1_Player
-	$Single_Player_Button.scale = Vector2(0.59, 0.59)
-	$Single_Player_Button.position = Vector2(231, 393)
+	$Single_Player_Button.scale = Vector2(1.18, 1.18)
+	$Single_Player_Button.position = Vector2(462, 786)
 	$Multiplayer_Button.icon = Selected_2_Players
-	$Multiplayer_Button.scale = Vector2(0.85, 0.85)
-	$Multiplayer_Button.position = Vector2(46, 518)
+	$Multiplayer_Button.scale = Vector2(1.7, 1.7)
+	$Multiplayer_Button.position = Vector2(92, 1036)
 
 
 func Selected_Single_Player():
 	$Single_Player_Button.icon = Selected_1_Player
-	$Single_Player_Button.position = Vector2(50, 378)
-	$Single_Player_Button.scale = Vector2(0.75, 0.75)
+	$Single_Player_Button.position = Vector2(100, 756)
+	$Single_Player_Button.scale = Vector2(1.5, 1.5)
 	$Multiplayer_Button.icon = Unselected_2_Players
-	$Multiplayer_Button.position = Vector2(167, 526)
-	$Multiplayer_Button.scale = Vector2(0.75, 0.75)
+	$Multiplayer_Button.position = Vector2(334, 1052)
+	$Multiplayer_Button.scale = Vector2(1.5, 1.5)
 
 
 func _on_back_button_pressed():

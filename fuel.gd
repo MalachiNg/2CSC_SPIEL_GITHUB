@@ -1,8 +1,8 @@
 extends Area2D
-@onready var min_x = 50  # the minimum x co-ordinate the player can be in as long as they stay in the map.
-@onready var max_x = 1052  # the maximum x co-ord
-@onready var min_y = 50  # min y co-ord
-@onready var max_y = 608  # max y co-ord
+@onready var min_x = 100  # the minimum x co-ordinate the player can be in as long as they stay in the map.
+@onready var max_x = 2280  # the maximum x co-ord
+@onready var min_y = 100  # min y co-ord
+@onready var max_y = 1216  # max y co-ord
 @onready var hit = false
 
 

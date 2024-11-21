@@ -1,12 +1,12 @@
 extends CharacterBody2D  # using a 2D environment.
-@onready var speed: float = 10
+@onready var speed: float = 20
 @onready var target_position: Vector2 = Vector2.ZERO
 @onready var player_pos: Vector2 = Vector2.ZERO
 @onready var direction: Vector2 = Vector2.ZERO  # instead of DOWN as it is in player, as the player automatically starts moving down, this is set to ZERO, so the variable only measures the direction.
 @onready var min_x = 0  # the minimum x co-ordinate the player can be in as long as they stay in the map.
-@onready var max_x = 1152  # the maximum x co-ord
+@onready var max_x = 2304  # the maximum x co-ord
 @onready var min_y = 0  # min y co-ord
-@onready var max_y = 648  # max y co-ord
+@onready var max_y = 1296  # max y co-ord
 @onready var player_target_position = Vector2.ZERO
 @onready var player_2_pos = Vector2.ZERO
 @onready var player_2_target_position = Vector2.ZERO

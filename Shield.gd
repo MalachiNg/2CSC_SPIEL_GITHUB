@@ -31,8 +31,8 @@ func show_and_hide():
 
 func spawn_in_random_location():
 	$Sprite2D.hide()
-	var random_x = randf_range(0, 1152)
-	var random_y = randf_range(0, 648)
+	var random_x = randf_range(0, 2304)
+	var random_y = randf_range(0, 1296)
 	global_position = Vector2(random_x, random_y)
 
 

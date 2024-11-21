@@ -54,8 +54,8 @@ func show_skin():
 func spawn_in_random_location():
 	$AnimatedSprite2D.hide()  # prevents a bug where food can be visible in the cutscenes beyond the first night.
 	# Therefore I have moved the animatedsprite2d.hide() line from ready to here, so it prevents this error every time, not just the first night.
-	var random_x = randf_range(0, 1152)
-	var random_y = randf_range(0, 648)
+	var random_x = randf_range(0, 2304)
+	var random_y = randf_range(0, 1296)
 	global_position = Vector2(random_x, random_y)
 
 
