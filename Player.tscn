@@ -44,7 +44,7 @@ script/source = "extends CharacterBody2D # using a 2D environment.
 @onready var nights_survived : int
 @onready var ran_game_over = false
 @onready var play_sound_called = false
-const Hearts_3 = preload(\"res://3_Hearts.png\") 
+const Hearts_3 = preload(\"res://3_Hearts.png\")
 const Hearts_2 = preload(\"res://2_Hearts.png\")
 const Hearts_1 = preload(\"res://1_Heart.png\")
 const Food_100 = preload(\"res://100%_food_texture.png\") 
