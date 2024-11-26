@@ -5,11 +5,7 @@ extends Area2D
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$AnimatedSprite2D.show()
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	animate()
+	Signals.connect("game_paused_true", animate)
 
 
 func animate():
@@ -34,6 +30,7 @@ func detect_player_1(body):
 				Global.update_fuel(0)
 				var new_day_night = Global.day_and_night + 1
 				Global.update_day_and_night(new_day_night)
+				animate()
 
 
 func detect_player_2(area):
@@ -51,3 +48,4 @@ func detect_player_2(area):
 				Global.update_fuel(0)
 				var new_day_night = Global.day_and_night + 1
 				Global.update_day_and_night(new_day_night)
+				animate()

@@ -250,7 +250,7 @@ func decrease_food(): # MAYBE CHANGE THIS TO CORRESPOND TO THE DAY AND NIGHT INC
 				# providing an steadily increasing challenge to help excercise the user's brains!
 			# this only occurs on the normal difficulty, however, and in hard mode this happens.
 			else:
-				food_wait_time = (21*(1-(Global.day_and_night * 0.1))) # same thing happened here, wait time increased by 40%.
+				food_wait_time = (21*(1-(Global.day_and_night * 0.08))) # same thing happened here, wait time increased by 40%.
 				# a far shorter, and more quickly decreasing time to reduce hunger. 
 			await get_tree().create_timer(food_wait_time).timeout
 			if not touched_food: 
@@ -362,7 +362,10 @@ func _on_area_entered(area):
 		food_timer_num += 1
 		# this sets a new variable to the value of the food_timer_num variable, preserving it's value.
 		var start_of_timer_num = food_timer_num
-		food_wait_time = (25*(1-(Global.day_and_night * 0.05)))
+		if Global.Normal_mode:
+			food_wait_time = (35*(1-(Global.day_and_night * 0.05)))
+		else:
+			food_wait_time = (21*(1-(Global.day_and_night * 0.08))) 
 		await get_tree().create_timer(food_wait_time).timeout
 		# then, in this if section of the code, it checks if the start_of_timer_num is the same as food_timer_num.
 		# if it is, that means the user has not increased the food_timer_num variable.

@@ -44,7 +44,7 @@ script/source = "extends CharacterBody2D # using a 2D environment.
 @onready var nights_survived : int
 @onready var ran_game_over = false
 @onready var play_sound_called = false
-const Hearts_3 = preload(\"res://3_Hearts.png\")
+const Hearts_3 = preload(\"res://3_Hearts.png\") 
 const Hearts_2 = preload(\"res://2_Hearts.png\")
 const Hearts_1 = preload(\"res://1_Heart.png\")
 const Food_100 = preload(\"res://100%_food_texture.png\") 
@@ -542,9 +542,9 @@ func _on_area_entered(area):
 		food_timer_num += 1
 		var start_of_timer_num = food_timer_num
 		if Global.Normal_mode:
-			food_wait_time = (25*(1-(Global.day_and_night * 0.05)))
+			food_wait_time = (35*(1-(Global.day_and_night * 0.05)))
 		else:
-			food_wait_time = (15*(1-(Global.day_and_night * 0.08))) 
+			food_wait_time = (21*(1-(Global.day_and_night * 0.08))) 
 		await get_tree().create_timer(food_wait_time).timeout
 		if food_timer_num == start_of_timer_num:
 			food_bars -= 1
